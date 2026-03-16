@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guardian Shield</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --bg2: #111520;
+      --bg3: #181d2e;
+      --border: rgba(255,255,255,0.07);
+      --red: #38bdf8;
+      --orange: #7dd3fc;
+      --text: #e8e8f0;
+      --muted: #4a5568;
+      --subtle: #1e2a3a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 18px 20px 16px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(125,211,252,0.05));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand svg { flex-shrink: 0; }
+    .brand-text { display: flex; flex-direction: column; gap: 1px; }
+    .brand-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .brand-tag { font-size: 9px; font-weight: 600; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; }
+
+    /* ── Toggle ── */
+    .toggle-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+    .toggle-label { font-size: 10px; color: var(--muted); font-weight: 500; }
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--subtle);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 2px; top: 2px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      border-color: transparent;
+      box-shadow: 0 0 12px rgba(56,189,248,0.4);
+    }
+    input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+      background: white;
+    }
+
+    /* ── Status bar ── */
+    .status-bar {
+      margin: 16px;
+      padding: 12px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #3ddc84;
+      box-shadow: 0 0 8px rgba(61,220,132,0.6);
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .status-dot.off {
+      background: var(--muted);
+      box-shadow: none;
+      animation: none;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .status-text { font-size: 13px; color: #aaa; flex: 1; }
+    .status-text span { color: var(--text); font-weight: 600; }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-val { font-size: 22px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
+    .stat-val.red { color: var(--red); }
+    .stat-lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+    /* ── Section ── */
+    .section-header {
+      padding: 0 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 600; }
+
+    /* ── Site list ── */
+    .sites-container {
+      padding: 0 16px;
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sites-container::-webkit-scrollbar { width: 4px; }
+    .sites-container::-webkit-scrollbar-track { background: transparent; }
+    .sites-container::-webkit-scrollbar-thumb { background: var(--subtle); border-radius: 4px; }
+
+    .site-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      transition: border-color 0.2s;
+    }
+    .site-item:hover { border-color: rgba(255,255,255,0.12); }
+    .site-favicon {
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .site-favicon img { width: 100%; height: 100%; object-fit: cover; }
+    .site-info { flex: 1; overflow: hidden; }
+    .site-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .site-meta { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .site-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.8px;
+      padding: 3px 7px; border-radius: 20px;
+      text-transform: uppercase; flex-shrink: 0;
+    }
+    .site-badge.trusted {
+      background: rgba(61,220,132,0.15);
+      color: #3ddc84;
+      border: 1px solid rgba(61,220,132,0.25);
+    }
+    .site-badge.learning {
+      background: rgba(255,193,7,0.12);
+      color: #ffc107;
+      border: 1px solid rgba(255,193,7,0.22);
+    }
+    .site-remove {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 14px; padding: 2px 4px;
+      border-radius: 4px; transition: all 0.15s; flex-shrink: 0;
+    }
+    .site-remove:hover { color: var(--red); background: rgba(56,189,248,0.1); }
+
+    .empty-state {
+      text-align: center; padding: 24px 16px;
+      color: var(--muted); font-size: 13px; line-height: 1.6;
+    }
+    .empty-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      flex: 1; padding: 7px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px; font-weight: 600;
+      color: var(--muted);
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--bg2);
+      border-color: rgba(255,255,255,0.12);
+      color: var(--text);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .footer span { color: var(--red); }
+
+    /* ── Disabled overlay ── */
+    .disabled-overlay {
+      display: none;
+      position: absolute;
+      inset: 60px 0 0 0;
+      background: rgba(12,12,16,0.85);
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      backdrop-filter: blur(2px);
+    }
+    .disabled-overlay.show { display: flex; }
+    .disabled-msg { font-size: 13px; color: var(--muted); text-align: center; padding: 0 32px; line-height: 1.6; }
+    .disabled-icon { font-size: 36px; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2L4 7v9c0 7.18 5.13 13.9 12 15.93C23.87 29.9 29 23.18 29 16V7L16 2z" fill="url(#pg)"/>
+        <path d="M13 16l2.5 2.5L20 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="pg" x1="4" y1="2" x2="29" y2="32" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0ea5e9"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Guardian Shield</span>
+        <span class="brand-tag">Proteção de dados</span>
+      </div>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="toggle-label">ATIVO</span>
+      <label class="toggle">
+        <input type="checkbox" id="main-toggle" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar" style="margin-top:16px;">
+    <div class="status-dot" id="status-dot"></div>
+    <div class="status-text" id="status-text">
+      Monitorando <span>todos os sites</span> ativos
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-val" id="stat-sites">0</span>
+      <span class="stat-lbl">Sites frequentes</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val red" id="stat-alerts">0</span>
+      <span class="stat-lbl">Alertas emitidos</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="frequent">Frequentes</button>
+    <button class="tab-btn" data-tab="trusted">Confiáveis</button>
+    <button class="tab-btn" data-tab="all">Todos</button>
+  </div>
+
+  <!-- Tab panels -->
+  <div id="tab-frequent" class="tab-panel active">
+    <div class="section-header">
+      <span class="section-title">Acessados com frequência</span>
+    </div>
+    <div class="sites-container" id="list-frequent"></div>
+  </div>
+
+  <div id="tab-trusted" class="tab-panel">
+    <div class="section-header">
+      <span class="section-title">Sites confiáveis</span>
+    </div>
+    <div class="sites-container" id="list-trusted"></div>
+  </div>
+
+  <div id="tab-all" class="tab-panel">
+    <div class="section-header">
+      <span class="section-title">Histórico completo</span>
+    </div>
+    <div class="sites-container" id="list-all"></div>
+  </div>
+
+  <!-- Disabled overlay -->
+  <div class="disabled-overlay" id="disabled-overlay">
+    <span class="disabled-icon">🛡️</span>
+    <p class="disabled-msg">Guardian Shield está <strong>desativado</strong>.<br/>Ative o toggle para retomar a proteção.</p>
+  </div>
+
+  <div class="footer">
+    Guardian Shield · Seus dados, sua proteção <span>♥</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
